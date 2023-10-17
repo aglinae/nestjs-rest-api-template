@@ -1,26 +1,55 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundError } from './error/not-found.error';
+import { User } from './interface/user.interface';
+import { userData } from './data/usersData';
+Injectable();
 
-@Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  private users: User[] = userData;
+  getUser(id: number) {
+    const userBase = this.users.find((user) => user.id === id);
+    return userBase;
   }
-
-  findAll() {
-    return `This action returns all user`;
+  getUsers(): User[] {
+    const findAll: User[] = this.users;
+    if (findAll) {
+      return findAll;
+    } else {
+      throw new NotFoundError(`Not Found ${typeof findAll}`);
+    }
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  createUser(user: User): User {
+    if (
+      !user.name ||
+      typeof user.name !== 'string' ||
+      !user.email ||
+      typeof user.email !== 'string'
+    ) {
+      throw new NotFoundError('Please provide a valid name and email.');
+    } else {
+      this.users.push(user);
+      return user;
+    }
   }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  updateUser(id: number, updateUserDto: Partial<User>): User {
+    const changeUserIndex = this.users.findIndex((user) => user.id === id);
+    if (changeUserIndex === -1) {
+      throw new NotFoundError(`User with ID ${id} not found`);
+    } else {
+      this.users[changeUserIndex] = {
+        ...this.users[changeUserIndex],
+        ...updateUserDto,
+      };
+      return this.users[changeUserIndex];
+    }
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  deleteUser(id: number): User {
+    const findUserIndex = this.users.findIndex((user) => user.id === id);
+    if (findUserIndex === -1) {
+      throw new NotFoundError(`User with ID: ${id} is not found`);
+    } else {
+      const deletedUser = this.users.splice(findUserIndex, 1);
+      return deletedUser[0];
+    }
   }
 }
