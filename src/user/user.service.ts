@@ -2,34 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { NotFoundError } from './error/not-found.error';
 import { User } from './interface/user.interface';
 import { userData } from './data/usersData';
+import { UserParamsDto } from './dto/user.dto';
 Injectable();
 
 export class UserService {
   private users: User[] = userData;
-  getUser(id: number) {
-    const userBase = this.users.find((user) => user.id === id);
-    return userBase;
+  getUser(userParamsDto: UserParamsDto) {
+    const userIndex = this.users.findIndex(
+      (user) => user.id === userParamsDto.id,
+    );
+    if (userIndex === -1) {
+      throw new NotFoundError(
+        `User withd ID: ${userParamsDto.id} is not found`,
+      );
+    } else {
+      return this.users[userIndex];
+    }
   }
   getUsers(): User[] {
     const findAll: User[] = this.users;
-    if (findAll) {
-      return findAll;
-    } else {
-      throw new NotFoundError(`Not Found ${typeof findAll}`);
-    }
+    return findAll;
   }
   createUser(user: User): User {
-    if (
-      !user.name ||
-      typeof user.name !== 'string' ||
-      !user.email ||
-      typeof user.email !== 'string'
-    ) {
-      throw new NotFoundError('Please provide a valid name and email.');
-    } else {
-      this.users.push(user);
-      return user;
-    }
+    this.users.push(user);
+    return user;
   }
   updateUser(id: number, updateUserDto: Partial<User>): User {
     const changeUserIndex = this.users.findIndex((user) => user.id === id);
