@@ -11,36 +11,36 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './interface/user.interface';
+import { User } from '@prisma/client';
 import { CreateUserDto, UserUpdateDto } from './dto/user.dto';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Get(':id')
-  getUser(@Param('id', ParseIntPipe) id: number): User {
-    return this.userService.getUser(id);
+  async getUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return await this.userService.getUser(id);
   }
   @Get()
-  getUsers(): User[] {
-    return this.userService.getUsers();
+  async getUsers(): Promise<User[]> {
+    return await this.userService.getUsers();
   }
 
   @Post()
   @UsePipes(new ValidationPipe())
-  createUser(@Body() user: CreateUserDto): User {
-    return this.userService.createUser(user);
+  async createUser(@Body() user: CreateUserDto): Promise<User> {
+    return await this.userService.createUser(user);
   }
 
   @Put(':id')
-  updateUser(
+  async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() userUpdateDto: UserUpdateDto,
-  ): User {
-    return this.userService.updateUser(id, userUpdateDto);
+  ): Promise<User> {
+    return await this.userService.updateUser(id, userUpdateDto);
   }
 
   @Delete(':id')
-  deleteUser(@Param('id', ParseIntPipe) id: number): User {
-    return this.userService.deleteUser(id);
+  async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return await this.userService.deleteUser(id);
   }
 }
