@@ -18,8 +18,13 @@ export class UserService {
     return findAll;
   }
   createUser(user: User): User {
-    this.users.push(user);
-    return user;
+    const userId = Date.now();
+    const newUser: User = {
+      ...user,
+      id: userId,
+    };
+    this.users.push(newUser);
+    return newUser;
   }
   updateUser(id: number, updateUserDto: Partial<User>): User {
     const changeUser = this.users.find((user) => user.id === id);
